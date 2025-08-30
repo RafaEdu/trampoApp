@@ -21,20 +21,15 @@ class UserTypeSelectionScreen extends StatelessWidget {
           ),
           subtitle: Text(subtitle),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.go(routePath),
+          // ALTERAÇÃO AQUI: de go() para push()
+          onTap: () => context.push(routePath),
         ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        // BOTÃO DE VOLTAR ADICIONADO AQUI
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Como você irá se cadastrar?'),
-      ),
+      // A AppBar agora irá mostrar o botão de voltar automaticamente
+      appBar: AppBar(title: const Text('Como você irá se cadastrar?')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

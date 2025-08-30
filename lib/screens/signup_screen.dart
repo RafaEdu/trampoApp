@@ -89,7 +89,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Widget specificForm() {
       switch (userType) {
         case UserType.pfAutonoma:
-          return FormPF(onChanged: (data) => _specific = data);
+          // Passa `isServiceProvider: true` para mostrar o campo de descrição
+          return FormPF(
+            onChanged: (data) => _specific = data,
+            isServiceProvider: true,
+          );
+        case UserType.pfContratante:
+          // Oculta o campo de descrição para contratantes
+          return FormPF(
+            onChanged: (data) => _specific = data,
+            isServiceProvider: false,
+          );
         case UserType.pfComCnpj:
           return FormPjIndividual(onChanged: (data) => _specific = data);
         case UserType.pjContratante:
@@ -99,14 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        // BOTÃO DE VOLTAR ADICIONADO AQUI
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Cadastro'),
-      ),
+      appBar: AppBar(title: const Text('Finalize seu Cadastro')),
       body: Form(
         key: _formKey,
         child: ListView(

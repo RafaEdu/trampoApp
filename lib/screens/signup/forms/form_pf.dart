@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 
 class FormPF extends StatefulWidget {
   final ValueChanged<Map<String, dynamic>> onChanged;
-  const FormPF({super.key, required this.onChanged});
+  final bool isServiceProvider;
+
+  const FormPF({
+    super.key,
+    required this.onChanged,
+    this.isServiceProvider = false,
+  });
 
   @override
   State<FormPF> createState() => _FormPFState();
@@ -12,8 +18,19 @@ class _FormPFState extends State<FormPF> {
   final nome = TextEditingController();
   final sobrenome = TextEditingController();
   final cpf = TextEditingController();
+  final descricao = TextEditingController();
   DateTime? nascimento;
   String? genero;
+
+  @override
+  void initState() {
+    super.initState();
+    // Adiciona listeners para chamar _emit a cada mudança
+    nome.addListener(_emit);
+    sobrenome.addListener(_emit);
+    cpf.addListener(_emit);
+    descricao.addListener(_emit);
+  }
 
   void _emit() {
     widget.onChanged({
@@ -21,17 +38,26 @@ class _FormPFState extends State<FormPF> {
         'nome': nome.text.trim(),
         'sobrenome': sobrenome.text.trim(),
         'cpf': cpf.text.trim(),
-        'nascimento': nascimento?.toIso8601String(),
+        'nascimento': nascimento?.toIso8601String(), // Corrigido
         'genero': genero,
+      },
+      // SINTAXE CORRIGIDA AQUI: Usando o spread operator (...)
+      if (widget.isServiceProvider && descricao.text.trim().isNotEmpty) ...{
+        'descricaoServicos': descricao.text.trim(),
       },
     });
   }
 
   @override
   void dispose() {
+    nome.removeListener(_emit);
+    sobrenome.removeListener(_emit);
+    cpf.removeListener(_emit);
+    descricao.removeListener(_emit);
     nome.dispose();
     sobrenome.dispose();
     cpf.dispose();
+    descricao.dispose();
     super.dispose();
   }
 
@@ -44,20 +70,29 @@ class _FormPFState extends State<FormPF> {
         TextFormField(
           controller: nome,
           decoration: const InputDecoration(labelText: 'Nome'),
-          onChanged: (_) => _emit(),
           validator: (v) => v == null || v.isEmpty ? 'Informe o nome' : null,
         ),
         TextFormField(
           controller: sobrenome,
           decoration: const InputDecoration(labelText: 'Sobrenome'),
-          onChanged: (_) => _emit(),
         ),
         TextFormField(
           controller: cpf,
           decoration: const InputDecoration(labelText: 'CPF'),
           keyboardType: TextInputType.number,
-          onChanged: (_) => _emit(),
         ),
+        if (widget.isServiceProvider) ...[
+          const SizedBox(height: 12),
+          Text('Serviços', style: Theme.of(context).textTheme.titleMedium),
+          TextFormField(
+            controller: descricao,
+            decoration: const InputDecoration(
+              labelText: 'Descrição dos serviços oferecidos',
+            ),
+            minLines: 2,
+            maxLines: 5,
+          ),
+        ],
         const SizedBox(height: 8),
         Row(
           children: [
@@ -71,11 +106,12 @@ class _FormPFState extends State<FormPF> {
                     lastDate: DateTime(now.year, now.month, now.day),
                     initialDate: DateTime(now.year - 18, now.month, now.day),
                   );
-                  if (picked != null)
+                  if (picked != null) {
                     setState(() {
                       nascimento = picked;
                       _emit();
                     });
+                  }
                 },
                 child: Text(
                   nascimento == null
