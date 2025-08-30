@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:freelago/screens/login_screen.dart';
 import 'package:freelago/screens/user_type_selection_screen.dart';
+import 'package:freelago/screens/pf_subtype_selection_screen.dart'; // Importe a nova tela
+import 'package:freelago/screens/pj_subtype_selection_screen.dart'; // Importe a nova tela
 import 'package:freelago/screens/signup_screen.dart';
 import 'package:freelago/screens/home_screen.dart';
 import 'package:freelago/screens/chat_screen.dart';
@@ -34,6 +36,8 @@ final GoRouter router = GoRouter(
         [
           '/login',
           '/select-user-type',
+          '/select-user-type/pf',
+          '/select-user-type/pj',
         ].any((p) => state.matchedLocation.startsWith(p)) ||
         state.matchedLocation.startsWith('/signup');
 
@@ -48,7 +52,17 @@ final GoRouter router = GoRouter(
       builder: (_, __) => const UserTypeSelectionScreen(),
     ),
     GoRoute(
-      path: '/signup/:type', // type = pf | pj_empresa | pj_individual
+      // Nova rota para sub-seleção PF
+      path: '/select-user-type/pf',
+      builder: (_, __) => const PfSubtypeSelectionScreen(),
+    ),
+    GoRoute(
+      // Nova rota para sub-seleção PJ
+      path: '/select-user-type/pj',
+      builder: (_, __) => const PjSubtypeSelectionScreen(),
+    ),
+    GoRoute(
+      path: '/signup/:type',
       builder: (context, state) =>
           SignUpScreen(type: state.pathParameters['type']!),
     ),

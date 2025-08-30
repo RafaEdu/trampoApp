@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class UserTypeSelectionScreen extends StatelessWidget {
-  const UserTypeSelectionScreen({super.key});
+class PjSubtypeSelectionScreen extends StatelessWidget {
+  const PjSubtypeSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Widget card(
-      String title,
-      String subtitle,
-      String routePath,
-      IconData icon,
-    ) {
+    Widget card(String title, String subtitle, String typePath, IconData icon) {
       return Card(
         child: ListTile(
           leading: Icon(icon),
@@ -21,7 +16,7 @@ class UserTypeSelectionScreen extends StatelessWidget {
           ),
           subtitle: Text(subtitle),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.go(routePath),
+          onTap: () => context.go('/signup/$typePath'),
         ),
       );
     }
@@ -33,22 +28,22 @@ class UserTypeSelectionScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Como você irá se cadastrar?'),
+        title: const Text('Selecione o tipo de perfil PJ'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           card(
-            'Pessoa Física',
-            'Para autônomos ou para contratar serviços como pessoa física.',
-            '/select-user-type/pf',
-            Icons.person,
+            'Empresa Contratante',
+            'Para empresas que desejam contratar serviços.',
+            'pj_contratante',
+            Icons.business_center,
           ),
           card(
-            'Pessoa Jurídica',
-            'Para empresas que contratam ou oferecem serviços.',
-            '/select-user-type/pj',
-            Icons.business,
+            'Empresa Prestadora de Serviço',
+            'Para empresas que oferecem serviços.',
+            'pj_prestadora',
+            Icons.construction,
           ),
         ],
       ),

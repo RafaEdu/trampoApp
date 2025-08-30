@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:freelago/models/user_type.dart';
 import 'package:freelago/auth/auth_service.dart';
 import 'package:freelago/screens/signup/widgets/address_fields.dart';
@@ -87,17 +88,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     Widget specificForm() {
       switch (userType) {
-        case UserType.pf:
+        case UserType.pfAutonoma:
           return FormPF(onChanged: (data) => _specific = data);
-        case UserType.pjEmpresa:
-          return FormPjEmpresa(onChanged: (data) => _specific = data);
-        case UserType.pjIndividual:
+        case UserType.pfComCnpj:
           return FormPjIndividual(onChanged: (data) => _specific = data);
+        case UserType.pjContratante:
+        case UserType.pjPrestadora:
+          return FormPjEmpresa(onChanged: (data) => _specific = data);
       }
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadastro')),
+      appBar: AppBar(
+        // BOTÃO DE VOLTAR ADICIONADO AQUI
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('Cadastro'),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
