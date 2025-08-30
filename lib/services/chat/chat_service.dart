@@ -1,42 +1,79 @@
 import 'package:freelago/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:freelago/models/user_type.dart'; // Importar UserType
 
 class ChatService {
-  // get instance of firebase & auth
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // obter o fluxo do usuário
-  /*
-
-  <List<Map<String,dynamic>>>
-
-  Seria como se fosse uma lista de Maps(que seria como um dicionario)
-  Ex:
-
-  [
-  {
-    'email': rafa@gmail.com,
-    'id': ...
-  },
-  {
-    'email': rafa@gmail.com,
-    'id': ...
-  },
-  ]
-
-  */
+  // Manter o método antigo caso seja usado em outro lugar
   Stream<List<Map<String, dynamic>>> getUserStream() {
     return _firestore.collection("Users").snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        //vai para cada user individual
         final user = doc.data();
-
-        //retorna o user
         return user;
       }).toList();
     });
+  }
+
+  // NOVO MÉTODO: Busca usuários com base no perfil do usuário logado
+  Stream<List<Map<String, dynamic>>> getFilteredUsersStream() async* {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      yield []; // Retorna uma lista vazia se não houver usuário
+      return;
+    }
+
+    // 1. Descobrir o tipo do usuário atual
+    final currentUserDoc = await _firestore
+        .collection("Users")
+        .doc(currentUser.uid)
+        .get();
+    if (!currentUserDoc.exists) {
+      yield [];
+      return;
+    }
+    final currentUserType = parseUserType(currentUserDoc.data()!['type']);
+
+    // 2. Definir quais tipos de perfil buscar
+    List<String> targetTypes;
+    final isContratante = [
+      UserType.pfContratante,
+      UserType.pjContratante,
+    ].contains(currentUserType);
+
+    if (isContratante) {
+      // Se for contratante, busca por prestadores de serviço
+      targetTypes = [
+        userTypeToString(UserType.pfAutonoma),
+        userTypeToString(UserType.pfComCnpj),
+        userTypeToString(UserType.pjPrestadora),
+      ];
+    } else {
+      // Se for prestador, busca por contratantes
+      targetTypes = [
+        userTypeToString(UserType.pfContratante),
+        userTypeToString(UserType.pjContratante),
+      ];
+    }
+
+    // Se targetTypes estiver vazio, não faz a query
+    if (targetTypes.isEmpty) {
+      yield [];
+      return;
+    }
+
+    // 3. Retornar a stream com o filtro
+    yield* _firestore
+        .collection("Users")
+        .where('type', whereIn: targetTypes)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return doc.data();
+          }).toList();
+        });
   }
 
   // mandar a mensagem

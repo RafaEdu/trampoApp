@@ -5,12 +5,13 @@ import 'package:go_router/go_router.dart';
 
 import 'package:freelago/screens/login_screen.dart';
 import 'package:freelago/screens/user_type_selection_screen.dart';
-import 'package:freelago/screens/pf_subtype_selection_screen.dart'; // Importe a nova tela
-import 'package:freelago/screens/pj_subtype_selection_screen.dart'; // Importe a nova tela
+import 'package:freelago/screens/pf_subtype_selection_screen.dart';
+import 'package:freelago/screens/pj_subtype_selection_screen.dart';
 import 'package:freelago/screens/signup_screen.dart';
 import 'package:freelago/screens/home_screen.dart';
 import 'package:freelago/screens/chat_screen.dart';
 import 'package:freelago/screens/perfil_screen.dart';
+import 'package:freelago/screens/edit_perfil_screen.dart'; // NOVO IMPORT
 import 'package:freelago/screens/settings_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -52,12 +53,10 @@ final GoRouter router = GoRouter(
       builder: (_, __) => const UserTypeSelectionScreen(),
     ),
     GoRoute(
-      // Nova rota para sub-seleção PF
       path: '/select-user-type/pf',
       builder: (_, __) => const PfSubtypeSelectionScreen(),
     ),
     GoRoute(
-      // Nova rota para sub-seleção PJ
       path: '/select-user-type/pj',
       builder: (_, __) => const PjSubtypeSelectionScreen(),
     ),
@@ -72,7 +71,17 @@ final GoRouter router = GoRouter(
       builder: (context, state) =>
           ChatScreen(receiverID: state.pathParameters['receiverID']!),
     ),
-    GoRoute(path: '/perfil', builder: (_, __) => const PerfilScreen()),
+    // ALTERAÇÕES NAS ROTAS DE PERFIL
+    GoRoute(
+      path: '/perfil',
+      builder: (_, __) => const PerfilScreen(),
+      routes: [
+        GoRoute(
+          path: 'edit', // Rota aninhada: /perfil/edit
+          builder: (_, __) => const EditPerfilScreen(),
+        ),
+      ],
+    ),
     GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
   ],
 );

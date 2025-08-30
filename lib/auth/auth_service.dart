@@ -7,6 +7,14 @@ class AuthService {
 
   User? getCurrentUser() => _auth.currentUser;
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUserData() async {
+    final user = getCurrentUser();
+    if (user == null) {
+      throw Exception("Nenhum usuário logado.");
+    }
+    return await _firestore.collection('Users').doc(user.uid).get();
+  }
+
   Future<UserCredential> signInWithEmailAndPassword(
     String email,
     String password,
@@ -36,10 +44,15 @@ class AuthService {
 
       final data = {
         'uid': uid,
-        'email': email,
+        'email': email, // O e-mail já está aqui
         'createdAt': FieldValue.serverTimestamp(),
         ...profileData, // inclui type, contact, address, etc.
       };
+
+      // Corrigindo para que o e-mail não seja duplicado dentro de 'contact'
+      if (profileData.containsKey('contact') && profileData['contact'] is Map) {
+        (data['contact'] as Map).remove('email');
+      }
 
       await _firestore
           .collection('Users')
